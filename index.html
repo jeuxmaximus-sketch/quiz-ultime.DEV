@@ -1,0 +1,517 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Générateur de Quiz Ultime</title>
+<style>
+:root{
+  --bg1:#46178f;
+  --bg2:#7b2ff7;
+  --card:#2c1361;
+}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(135deg,var(--bg1),var(--bg2));
+  color:white;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding-bottom:160px; /* espace pour bannière cookies */
+}
+.container{
+  background:var(--card);
+  padding:25px;
+  border-radius:15px;
+  width:95%;
+  max-width:900px;
+  box-shadow:0 10px 30px rgba(0,0,0,.4);
+  position:relative;
+}
+h1,h2{text-align:center}
+button,input,select{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:none}
+button{background:#7b2ff7;color:white;cursor:pointer}
+button:hover{opacity:.9}
+.hidden{display:none}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quiz-btn{padding:18px;border-radius:12px;color:white}
+.red{background:#e63946}
+.blue{background:#457b9d}
+.yellow{background:#f1c40f;color:black}
+.green{background:#2ecc71}
+.orange{background:#f39c12;color:black}
+.purple{background:#9b59b6}
+.correct{box-shadow:0 0 20px #2ecc71}
+.wrong{box-shadow:0 0 20px #e63946}
+.feedback{text-align:center;font-size:1.6em;font-weight:bold}
+.feedback.ok{color:#2ecc71}
+.feedback.no{color:#e63946}
+.q-list{background:#1b0c3f;padding:10px;border-radius:10px}
+.q-item{display:flex;gap:5px;align-items:center}
+.q-item span{flex:1;font-size:.9em}
+.q-item button{width:auto}
+#qrcode,#scanner{display:flex;justify-content:center;margin-top:10px;}
+.signature{text-align:center;font-size:.75em;opacity:.7;margin-top:10px;}
+.legal-links{text-align:center;font-size:.75em;opacity:.8;margin-top:5px;}
+.legal-links a{color:white;text-decoration:none;}
+.legal-links a:hover{text-decoration:underline;}
+.cookie-banner{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:#1b0c3f;
+  color:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  z-index:9999;
+  box-shadow:0 -5px 20px rgba(0,0,0,.4);
+}
+.cookie-banner a{color:#7b2ff7;}
+.cookie-buttons button{
+  width:auto;
+  margin-left:10px;
+  padding:8px 15px;
+  border-radius:6px;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<!-- Bannière cookies -->
+<!--<div id="cookie-banner" class="cookie-banner hidden">
+  <p>
+    🍪 Ce site utilise des cookies pour améliorer l’expérience utilisateur et afficher des publicités.
+    <a href="politique-cookies.html">En savoir plus</a>
+  </p>
+  <div class="cookie-buttons">
+    <button onclick="acceptCookies()">Accepter</button>
+    <button onclick="refuseCookies()">Refuser</button>
+  </div>
+</div>-->
+
+<div class="container">
+
+  <!-- MENU ACCUEIL -->
+  <div id="home">
+    <h1>🎯 Générateur de Quiz Ultime</h1>
+    <button onclick="showCreator()">🧠 Créer / Modifier un quiz</button>
+    <button onclick="startQuiz()">▶️ Lancer le quiz</button>
+
+    <h3>Exporter :</h3>
+    <button onclick="generateQRCode()">📱 QR Code mobile</button>
+    <button onclick="exportFile()">💾 Fichier JSON</button>
+    <div id="qrcode"></div>
+
+    <h3>Importer :</h3>
+    <input type="file" onchange="importFile(event)">
+    <button onclick="startScanner()">📷 Scanner QR (mobile)</button>
+    <div id="scanner" class="hidden"></div>
+
+    <h3>Changer le thème :</h3>
+    <select id="themeMenu" onchange="applyTheme()">
+      <option value="violet">Violet</option>
+      <option value="bleu">BleuFoncé</option>
+      <option value="vert">Vert</option>
+      <option value="rouge">Rouge</option>
+      <option value="rose">Rose</option>
+      <option value="orange">Orange</option>
+      <option value="sombre">Sombre</option>
+      <option value="custom">Personnalisé</option>
+    </select>
+
+    <div id="customizer" class="hidden">
+      <p>Choisissez vos couleurs :</p>
+      <input type="color" id="color1" value="#000000" onchange="updatePreview()">
+      <input type="color" id="color2" value="#ffffff" onchange="updatePreview()">
+      <div id="preview" style="height:50px;border-radius:8px;margin-top:10px;border:2px solid #fff;"></div>
+      <button onclick="applyCustomGradient()">Appliquer dégradé</button>
+    </div>
+  </div>
+
+  <!-- CRÉATEUR -->
+  <div id="creator" class="hidden">
+    <h2>Création du quiz</h2>
+    <input id="q" placeholder="Question">
+    <label>Nombre de réponses : </label>
+    <select id="numAnswers" onchange="updateAnswerFields()">
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4" selected>4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+    </select>
+    <div id="answersContainer">
+      <input id="a0" placeholder="Réponse 1">
+      <input id="a1" placeholder="Réponse 2">
+      <input id="a2" placeholder="Réponse 3">
+      <input id="a3" placeholder="Réponse 4">
+      <input id="a4" placeholder="Réponse 5" class="hidden">
+      <input id="a5" placeholder="Réponse 6" class="hidden">
+    </div>
+    <label>Bonne réponse :</label>
+    <select id="correct"></select>
+    <button onclick="addQuestion()">➕ Ajouter / Modifier</button>
+    <button onclick="backHome()">⬅️ Accueil</button>
+    <div id="qList" class="q-list"></div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" class="hidden">
+    <h2 id="question"></h2>
+    <div class="answers">
+      <button class="quiz-btn red" onclick="answer(0)"></button>
+      <button class="quiz-btn blue" onclick="answer(1)"></button>
+      <button class="quiz-btn yellow" onclick="answer(2)"></button>
+      <button class="quiz-btn green" onclick="answer(3)"></button>
+      <button class="quiz-btn orange hidden" onclick="answer(4)"></button>
+      <button class="quiz-btn purple hidden" onclick="answer(5)"></button>
+    </div>
+    <div id="feedback" class="feedback"></div>
+    <div id="scoreEl"></div>
+  </div>
+
+  <div id="stats" class="hidden"></div>
+
+  <!-- FOOTER -->
+  <div class="signature">© 2026 – Warnotte Maxime</div>
+  <div class="legal-links">
+    <a href="mentions-legales.html">Mentions légales</a> |
+    <a href="politique-cookies.html">Politique de cookies</a> |
+    <a href="politique-confidentialite.html">Politique de confidentialité</a>
+  </div>
+
+  <!-- PUB FOOTER (optionnelle) -->
+  <ins class="adsbygoogle"
+       style="display:block"
+       data-ad-client="ca-pub-XXXXXXXX"
+       data-ad-slot="YYYYYYYY"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+// === VARIABLES & DOM ===
+const home=document.getElementById("home");
+const creator=document.getElementById("creator");
+const quiz=document.getElementById("quiz");
+const statsDiv=document.getElementById("stats");
+const qList=document.getElementById("qList");
+const feedback=document.getElementById("feedback");
+const scoreEl=document.getElementById("scoreEl");
+let questions=JSON.parse(localStorage.getItem("quiz"))||[];
+let index=0,score=0,editIndex=null;
+
+// === AUDIO ===
+const ctx=new (window.AudioContext||window.webkitAudioContext)();
+const beep=(f,d,t)=>{
+  const o=ctx.createOscillator(),g=ctx.createGain();
+  o.type=t;o.frequency.value=f;
+  g.gain.value=.4;
+  g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+d);
+  o.connect(g);g.connect(ctx.destination);
+  o.start();o.stop(ctx.currentTime+d);
+}
+const ding=()=>beep(1200,.4,"sine");
+const dong=()=>beep(250,.6,"square");
+
+// === NAVIGATION ===
+window.showCreator=()=>{home.classList.add("hidden");creator.classList.remove("hidden");}
+window.backHome=()=>{creator.classList.add("hidden");home.classList.remove("hidden");}
+
+// === GESTION RÉPONSES ===
+window.updateAnswerFields=()=>{
+  const num=+document.getElementById("numAnswers").value;
+  for(let i=0;i<6;i++){
+    const el=document.getElementById("a"+i);
+    if(el) el.classList.toggle("hidden",i>=num);
+  }
+  updateCorrectOptions();
+}
+function updateCorrectOptions(){
+  const sel=document.getElementById("correct");
+  if(!sel) return;
+  const num=+document.getElementById("numAnswers").value;
+  sel.innerHTML="";
+  for(let i=0;i<num;i++) sel.innerHTML+=`<option value="${i}">Bonne réponse : ${i+1}</option>`;
+}
+updateAnswerFields();
+
+// === QUESTIONS ===
+function renderList(){
+  qList.innerHTML="<h3>Questions</h3>";
+  questions.forEach((q,i)=>{
+    qList.innerHTML+=`
+      <div class="q-item">
+        <span>${i+1}. ${q.q}</span>
+        <button onclick="editQ(${i})">✏️</button>
+        <button onclick="delQ(${i})">🗑️</button>
+      </div>`;
+  });
+  localStorage.setItem("quiz",JSON.stringify(questions));
+}
+renderList();
+
+window.addQuestion=()=>{
+  const num=+document.getElementById("numAnswers").value;
+  const ans=[];
+  for(let i=0;i<num;i++){
+    const val=document.getElementById("a"+i)?.value;
+    if(!val) return alert("Toutes les réponses doivent être remplies");
+    ans.push(val);
+  }
+  const qVal=document.getElementById("q")?.value;
+  if(!qVal) return alert("Question vide !");
+  const correctIndex=+document.getElementById("correct")?.value;
+  const obj={q:qVal,a:ans,correct:correctIndex};
+  editIndex!==null?questions[editIndex]=obj:questions.push(obj);
+  editIndex=null;
+  document.getElementById("q").value="";
+  for(let i=0;i<6;i++) if(document.getElementById("a"+i)) document.getElementById("a"+i).value="";
+  renderList();
+}
+
+window.editQ=(i)=>{
+  const qu=questions[i];
+  if(!qu) return;
+  document.getElementById("q").value=qu.q;
+  document.getElementById("numAnswers").value=qu.a.length;
+  updateAnswerFields();
+  for(let j=0;j<qu.a.length;j++) document.getElementById("a"+j).value=qu.a[j];
+  document.getElementById("correct").value=qu.correct;
+  editIndex=i;
+}
+
+window.delQ=(i)=>{
+  if(confirm("Supprimer ?")){questions.splice(i,1);renderList();}
+}
+
+// === QUIZ ===
+window.startQuiz=()=>{
+  if(!questions.length) return alert("Aucune question");
+  home.classList.add("hidden");
+  quiz.classList.remove("hidden");
+  index=0;score=0;
+  questions.sort(()=>Math.random()-.5);
+  load();
+}
+
+function load(){
+  const q = questions[index];
+  document.getElementById("question").textContent = q.q;
+  feedback.textContent="";
+  const btns=document.querySelectorAll(".quiz-btn");
+  btns.forEach((btn,i)=>{
+    if(q.a[i]){
+      btn.textContent=q.a[i];
+      btn.classList.remove("hidden","correct","wrong");
+      btn.disabled=false;
+    } else btn.classList.add("hidden");
+  });
+  scoreEl.textContent="Score : "+score;
+}
+
+window.answer=(i)=>{
+  const q=questions[index];
+  const btns=document.querySelectorAll(".quiz-btn");
+  btns.forEach(btn=>btn.disabled=true);
+  btns[q.correct].classList.add("correct");
+  if(i===q.correct){
+    score++;
+    ding();
+    feedback.textContent="✅ JUSTE";
+    feedback.className="feedback ok";
+  } else{
+    dong();
+    feedback.textContent="❌ FAUX";
+    feedback.className="feedback no";
+    btns[i].classList.add("wrong");
+  }
+  setTimeout(()=>{
+    index++;
+    if(index<questions.length) load();
+    else end();
+  },1200);
+}
+
+function end(){
+  quiz.classList.add("hidden");
+  statsDiv.classList.remove("hidden");
+  statsDiv.innerHTML=`
+    <h2>📊 Résultats</h2>
+    <p>${score} / ${questions.length}</p>
+    <p>${Math.round(score/questions.length*100)}%</p>
+    <button onclick="location.reload()">🔁 Accueil</button>`;
+}
+
+// === THÈMES ===
+window.applyTheme=()=>{
+  const val=document.getElementById("themeMenu")?.value;
+  if(!val) return;
+  localStorage.setItem("theme",val);
+  const cust=document.getElementById("customizer");
+  if(cust) cust.classList.toggle("hidden",val!=="custom");
+  const th={
+    violet:["#46178f","#7b2ff7"],
+    bleu:["#0f2027","#2c5364"],
+    vert:["#134e5e","#71b280"],
+    rouge:["#8e0e00","#c0392b"],
+    rose:["#ff758c","#ff7eb3"],
+    orange:["#f12711","#f5af19"],
+    sombre:["#232526","#414345"]
+  }[val];
+  if(th){
+    document.documentElement.style.setProperty("--bg1",th[0]);
+    document.documentElement.style.setProperty("--bg2",th[1]);
+  }
+}
+
+window.updatePreview=()=>{
+  const c1=document.getElementById("color1")?.value;
+  const c2=document.getElementById("color2")?.value;
+  if(c1 && c2) document.getElementById("preview").style.background=`linear-gradient(135deg,${c1},${c2})`;
+}
+
+window.applyCustomGradient=()=>{
+  const c1=document.getElementById("color1")?.value;
+  const c2=document.getElementById("color2")?.value;
+  if(c1 && c2){
+    document.documentElement.style.setProperty("--bg1",c1);
+    document.documentElement.style.setProperty("--bg2",c2);
+    localStorage.setItem("theme","custom");
+    localStorage.setItem("custom1",c1);
+    localStorage.setItem("custom2",c2);
+  }
+}
+
+// === EXPORT / IMPORT JSON & QR ===
+window.generateQRCode = () => {
+  const qrcodeDiv = document.getElementById("qrcode");
+  qrcodeDiv.innerHTML="";
+  if(!questions.length){alert("Aucune question");return;}
+  const json = JSON.stringify(questions);
+  new QRCode(qrcodeDiv,{text:json,width:200,height:200});
+}
+
+window.exportFile = () => {
+  if(!questions.length){alert("Aucune question");return;}
+  const blob = new Blob([JSON.stringify(questions)],{type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "quiz.json";
+  a.click();
+}
+
+window.importFile = (e) => {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      questions = JSON.parse(reader.result);
+      localStorage.setItem("quiz",JSON.stringify(questions));
+      alert("Quiz importé !");
+      renderList();
+    }catch(err){
+      alert("Fichier invalide !");
+    }
+  }
+  reader.readAsText(file);
+}
+
+// === QR CODE SCANNER ===
+let html5QrScanner;
+window.startScanner = () => {
+  const scannerDiv = document.getElementById("scanner");
+  scannerDiv.classList.remove("hidden");
+  html5QrScanner = new Html5Qrcode("scanner");
+  html5QrScanner.start({facingMode:"environment"},{fps:10,qrbox:250},
+    qrCodeMessage => {
+      try{
+        questions = JSON.parse(qrCodeMessage);
+        localStorage.setItem("quiz",JSON.stringify(questions));
+        alert("Quiz importé depuis QR !");
+        renderList();
+        html5QrScanner.stop();
+        scannerDiv.classList.add("hidden");
+      }catch(e){
+        alert("QR code invalide !");
+      }
+    },
+    errorMessage => {}
+  );
+}
+
+// === CHARGEMENT THÈME ===
+const savedTheme=localStorage.getItem("theme");
+if(savedTheme){
+  document.getElementById("themeMenu").value=savedTheme;
+  if(savedTheme==="custom"){
+    document.getElementById("customizer")?.classList.remove("hidden");
+    const c1=localStorage.getItem("custom1")||"#000000";
+    const c2=localStorage.getItem("custom2")||"#ffffff";
+    document.getElementById("color1").value=c1;
+    document.getElementById("color2").value=c2;
+    updatePreview();
+    document.documentElement.style.setProperty("--bg1",c1);
+    document.documentElement.style.setProperty("--bg2",c2);
+  } else applyTheme();
+}
+
+// === COOKIES & ADSENSE ===
+function loadAdSense(){
+  if(document.getElementById("adsense-script")) return;
+  const s = document.createElement("script");
+  s.id = "adsense-script";
+  s.async = true;
+  s.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXX";
+  s.crossOrigin = "anonymous";
+  document.head.appendChild(s);
+  (adsbygoogle = window.adsbygoogle || []).push({});
+}
+
+function acceptCookies(){
+  localStorage.setItem("cookieConsent","accepted");
+  document.getElementById("cookie-banner").style.display = "none";
+  loadAdSense();
+}
+
+function refuseCookies(){
+  localStorage.setItem("cookieConsent","refused");
+  document.getElementById("cookie-banner").style.display = "none";
+}
+
+
+window.addEventListener("load", () => {
+  const banner = document.getElementById("cookie-banner");
+  const consent = localStorage.getItem("cookieConsent");
+
+  if(consent === "accepted"){
+    banner.style.display = "none"; // on cache toujours
+    loadAdSense();                  // on charge AdSense
+  } else if(consent === "refused"){
+    banner.style.display = "none"; // on cache toujours
+  } else {
+    banner.style.display = "flex"; // pas encore choisi → affiche
+  }
+});
+
+
+
+</script>
+</body>
+</html>
+
+
+
+
+
