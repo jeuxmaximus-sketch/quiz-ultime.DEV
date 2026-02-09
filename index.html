@@ -80,6 +80,32 @@ button:hover{opacity:.9}
   border-radius:6px;
   cursor:pointer;
 }
+.color-row{
+  display:flex;
+  gap:15px;
+  margin-top:10px;
+}
+
+/* Rectangle large */
+.color-rect{
+  width:120px;
+  height:60px;
+  border:none;
+  padding:0;
+  cursor:pointer;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+/* Supprime le style par défaut (Chrome / Edge / Safari) */
+.color-rect::-webkit-color-swatch-wrapper{
+  padding:0;
+}
+
+.color-rect::-webkit-color-swatch{
+  border:none;
+  border-radius:10px;
+}
 </style>
 </head>
 <body>
@@ -126,13 +152,17 @@ button:hover{opacity:.9}
       <option value="custom">Personnalisé</option>
     </select>
 
-    <div id="customizer" class="hidden">
-      <p>Choisissez vos couleurs :</p>
-      <input type="color" id="color1" value="#000000" onchange="updatePreview()">
-      <input type="color" id="color2" value="#ffffff" onchange="updatePreview()">
-      <div id="preview" style="height:50px;border-radius:8px;margin-top:10px;border:2px solid #fff;"></div>
-      <button onclick="applyCustomGradient()">Appliquer dégradé</button>
-    </div>
+   <div id="customizer" class="hidden">
+  <p>Choisissez vos couleurs :</p>
+
+  <div class="color-row">
+    <input type="color" id="color1" value="#000000" onchange="updatePreview()" class="color-rect">
+    <input type="color" id="color2" value="#ffffff" onchange="updatePreview()" class="color-rect">
+  </div>
+
+  <div id="preview" style="height:50px;border-radius:8px;margin-top:10px;border:2px solid #fff;"></div>
+  <button onclick="applyCustomGradient()">Appliquer dégradé</button>
+</div>
   </div>
 
   <!-- CRÉATEUR -->
