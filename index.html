@@ -2,14 +2,15 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<style>
 <meta charset="UTF-8">
 <title>∑urêka:main</title>
-<style>
 :root{
   --bg1:#46178f;
   --bg2:#7b2ff7;
   --card:#2c1361;
 }
+
 body{
   margin:0;
   font-family:Arial,sans-serif;
@@ -19,8 +20,10 @@ body{
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding-bottom:160px; /* espace pour bannière cookies */
+  padding-bottom:160px;
 }
+
+/* Container */
 .container{
   background:var(--card);
   padding:25px;
@@ -30,33 +33,122 @@ body{
   box-shadow:0 10px 30px rgba(0,0,0,.4);
   position:relative;
 }
-h1,h2{text-align:center}
-button,input,select{width:100%;padding:10px;margin:6px 0;border-radius:8px;border:none}
-button{background:#7b2ff7;color:white;cursor:pointer}
+
+/* Titres responsive */
+h1{
+  font-family:arial;
+  font-size:clamp(36px, 8vw, 85px);
+  text-align:center;
+}
+
+h2{
+  text-align:center;
+  font-size:clamp(18px, 4vw, 32px);
+}
+
+/* Inputs / boutons */
+button,input,select{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:8px;
+  border:none;
+  font-size:16px;
+}
+
+button{
+  background:#7b2ff7;
+  color:white;
+  cursor:pointer;
+}
+
 button:hover{opacity:.9}
+
 .hidden{display:none}
-.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.quiz-btn{padding:18px;border-radius:12px;color:white}
+
+/* Réponses quiz */
+.answers{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.quiz-btn{
+  padding:18px;
+  border-radius:12px;
+  color:white;
+  font-size:16px;
+}
+
+/* Couleurs */
 .red{background:#e63946}
 .blue{background:#457b9d}
 .yellow{background:#f1c40f;color:black}
 .green{background:#2ecc71}
 .orange{background:#f39c12;color:black}
 .purple{background:#9b59b6}
+
 .correct{box-shadow:0 0 20px #2ecc71}
 .wrong{box-shadow:0 0 20px #e63946}
-.feedback{text-align:center;font-size:1.6em;font-weight:bold}
+
+.feedback{
+  text-align:center;
+  font-size:1.6em;
+  font-weight:bold;
+}
+
 .feedback.ok{color:#2ecc71}
 .feedback.no{color:#e63946}
-.q-list{background:#1b0c3f;padding:10px;border-radius:10px}
-.q-item{display:flex;gap:5px;align-items:center}
-.q-item span{flex:1;font-size:.9em}
+
+.q-list{
+  background:#1b0c3f;
+  padding:10px;
+  border-radius:10px;
+}
+
+.q-item{
+  display:flex;
+  gap:5px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.q-item span{
+  flex:1;
+  font-size:.9em;
+}
+
 .q-item button{width:auto}
-#qrcode,#scanner{display:flex;justify-content:center;margin-top:10px;}
-.signature{text-align:center;font-size:.75em;opacity:.7;margin-top:10px;}
-.legal-links{text-align:center;font-size:.75em;opacity:.8;margin-top:5px;}
-.legal-links a{color:white;text-decoration:none;}
-.legal-links a:hover{text-decoration:underline;}
+
+#qrcode,#scanner{
+  display:flex;
+  justify-content:center;
+  margin-top:10px;
+}
+
+/* Signature */
+.signature{
+  text-align:center;
+  font-size:.75em;
+  opacity:.7;
+  margin-top:10px;
+}
+
+.legal-links{
+  text-align:center;
+  font-size:.75em;
+  opacity:.8;
+  margin-top:5px;
+}
+
+.legal-links a{
+  color:white;
+  text-decoration:none;
+}
+
+.legal-links a:hover{text-decoration:underline}
+
+/* Bannière cookies */
 .cookie-banner{
   position:fixed;
   bottom:0;
@@ -72,23 +164,34 @@ button:hover{opacity:.9}
   z-index:9999;
   box-shadow:0 -5px 20px rgba(0,0,0,.4);
 }
+
 .cookie-banner a{color:#7b2ff7;}
+
+.cookie-buttons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
 .cookie-buttons button{
   width:auto;
-  margin-left:10px;
   padding:8px 15px;
   border-radius:6px;
   cursor:pointer;
 }
+
+/* Choix couleur */
 .color-row{
   display:flex;
   gap:15px;
   margin-top:10px;
+  flex-wrap:wrap;
 }
 
-/* Rectangle large */
+/* Rectangle couleur responsive */
 .color-rect{
-  width:450px;
+  width:100%;
+  max-width:450px;
   height:60px;
   border:none;
   padding:0;
@@ -97,7 +200,6 @@ button:hover{opacity:.9}
   overflow:hidden;
 }
 
-/* Supprime le style par défaut (Chrome / Edge / Safari) */
 .color-rect::-webkit-color-swatch-wrapper{
   padding:0;
 }
@@ -106,9 +208,32 @@ button:hover{opacity:.9}
   border:none;
   border-radius:10px;
 }
-h1{
-font-family:arial;
-font-size:85px;
+
+/* ===== MOBILE ===== */
+@media (max-width:700px){
+
+  .container{
+    padding:18px;
+  }
+
+  .answers{
+    grid-template-columns:1fr;
+  }
+
+  .quiz-btn{
+    padding:16px;
+    font-size:15px;
+  }
+
+  .cookie-banner{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:10px;
+  }
+
+  body{
+    padding-bottom:220px;
+  }
 }
 </style>
 </head>
