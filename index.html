@@ -5,10 +5,37 @@
 <title>∑urêka:Welcome</title>
 </head>
 <style>
-  body{
-  background: linear-gradient(180deg,rgba(2, 0, 36, 1) 1%, rgba(9, 9, 121, 1) 7%, rgba(0, 198, 246, 1) 72%, rgba(0, 204, 250, 1) 91%, rgba(0, 210, 254, 1) 98%, rgba(0, 212, 255, 1) 100%);
-  margin:50px;
+  .animated-gradient {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+
+  background: linear-gradient(
+    180deg,
+    rgba(2, 0, 36, 1),
+    rgba(9, 9, 121, 1),
+    rgba(0, 198, 246, 1),
+    rgba(0, 204, 250, 1),
+    rgba(0, 210, 254, 1),
+    rgba(0, 212, 255, 1)
+  );
+
+  background-size: 400% 400%;
+  animation: waveGradient 12s ease infinite;
 }
+
+@keyframes waveGradient {
+  0% {
+    background-position: 50% 0%;
+  }
+  50% {
+    background-position: 50% 100%;
+  }
+  100% {
+    background-position: 50% 0%;
+  }
+}
+
   h1,h2{
     font-size:100px;
     color:white;
