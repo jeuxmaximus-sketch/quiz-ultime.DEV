@@ -604,20 +604,22 @@ window.startScanner = () => {
 }
 
 // === CHARGEMENT THÈME ===
-const savedTheme=localStorage.getItem("theme");
-if(savedTheme){
-  document.getElementById("themeMenu").value=savedTheme;
-  if(savedTheme==="custom"){
-    document.getElementById("customizer")?.classList.remove("hidden");
-    const c1=localStorage.getItem("custom1")||"#000000";
-    const c2=localStorage.getItem("custom2")||"#ffffff";
-    document.getElementById("color1").value=c1;
-    document.getElementById("color2").value=c2;
-    updatePreview();
-    document.documentElement.style.setProperty("--bg1",c1);
-    document.documentElement.style.setProperty("--bg2",c2);
-  } else applyTheme();
+const savedTheme = localStorage.getItem("theme") || "violet";
+document.getElementById("themeMenu").value = savedTheme;
+
+if(savedTheme === "custom"){
+  document.getElementById("customizer")?.classList.remove("hidden");
+  const c1 = localStorage.getItem("custom1") || "#46178f";
+  const c2 = localStorage.getItem("custom2") || "#7b2ff7";
+  document.getElementById("color1").value = c1;
+  document.getElementById("color2").value = c2;
+  updatePreview();
+  document.documentElement.style.setProperty("--bg1", c1);
+  document.documentElement.style.setProperty("--bg2", c2);
+} else {
+  applyTheme();
 }
+
 
 // === COOKIES & ADSENSE ===
 function loadAdSense(){
