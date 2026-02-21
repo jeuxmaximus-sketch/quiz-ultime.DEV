@@ -321,35 +321,6 @@ button:hover{opacity:.9}
     <button onclick="backHome()">⬅️ Accueil</button>
     <div id="qList" class="q-list"></div>
   </div>
-  function updateAnswerFields() {
-  const num = parseInt(document.getElementById("numAnswers").value);
-  const correctContainer = document.getElementById("correctContainer");
-  correctContainer.innerHTML = "";
-
-  for (let i = 0; i < 6; i++) {
-    const answerInput = document.getElementById("a" + i);
-
-    if (i < num) {
-      answerInput.classList.remove("hidden");
-
-      // création case à cocher
-      const label = document.createElement("label");
-      label.style.display = "block";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.value = i;
-
-      label.appendChild(checkbox);
-      label.appendChild(document.createTextNode(" Réponse " + (i + 1)));
-
-      correctContainer.appendChild(label);
-
-    } else {
-      answerInput.classList.add("hidden");
-    }
-  }
-}
 
   <!-- QUIZ -->
   <div id="quiz" class="hidden">
@@ -381,6 +352,36 @@ button:hover{opacity:.9}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
+   function updateAnswerFields() {
+  const num = parseInt(document.getElementById("numAnswers").value);
+  const correctContainer = document.getElementById("correctContainer");
+  correctContainer.innerHTML = "";
+
+  for (let i = 0; i < 6; i++) {
+    const answerInput = document.getElementById("a" + i);
+
+    if (i < num) {
+      answerInput.classList.remove("hidden");
+
+      // création case à cocher
+      const label = document.createElement("label");
+      label.style.display = "block";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = i;
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(" Réponse " + (i + 1)));
+
+      correctContainer.appendChild(label);
+
+    } else {
+      answerInput.classList.add("hidden");
+    }
+  }
+}
+
 // === VARIABLES & DOM ===
 const home=document.getElementById("home");
 const creator=document.getElementById("creator");
