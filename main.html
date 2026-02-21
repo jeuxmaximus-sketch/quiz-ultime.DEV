@@ -411,23 +411,37 @@ window.showCreator=()=>{home.classList.add("hidden");creator.classList.remove("h
 window.backHome=()=>{creator.classList.add("hidden");home.classList.remove("hidden");}
 
 // === GESTION RÉPONSES ===
-window.updateAnswerFields=()=>{
-  const num=+document.getElementById("numAnswers").value;
-  for(let i=0;i<6;i++){
-    const el=document.getElementById("a"+i);
-    if(el) el.classList.toggle("hidden",i>=num);
-  }
-  updateCorrectOptions();
-}
-function updateCorrectOptions(){
-  const sel=document.getElementById("correct");
-  if(!sel) return;
-  const num=+document.getElementById("numAnswers").value;
-  sel.innerHTML="";
-  for(let i=0;i<num;i++) sel.innerHTML+=`<option value="${i}">Bonne réponse : ${i+1}</option>`;
-}
-updateAnswerFields();
+window.updateAnswerFields = () => {
+  const num = +document.getElementById("numAnswers").value;
+  const container = document.getElementById("correctContainer");
+  container.innerHTML = "";
 
+  for (let i = 0; i < 6; i++) {
+    const input = document.getElementById("a" + i);
+
+    if (i < num) {
+      input.classList.remove("hidden");
+
+      // Création case à cocher
+      const label = document.createElement("label");
+      label.style.display = "block";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.value = i;
+
+      label.appendChild(checkbox);
+      label.append(" Réponse " + (i + 1));
+
+      container.appendChild(label);
+
+    } else {
+      input.classList.add("hidden");
+    }
+  }
+};
+
+updateAnswerFields();
 // === QUESTIONS ===
 function renderList(){
   qList.innerHTML="<h3>Questions</h3>";
@@ -443,35 +457,64 @@ function renderList(){
 }
 renderList();
 
-window.addQuestion=()=>{
-  const num=+document.getElementById("numAnswers").value;
-  const ans=[];
-  for(let i=0;i<num;i++){
-    const val=document.getElementById("a"+i)?.value;
-    if(!val) return alert("Toutes les réponses doivent être remplies");
+window.addQuestion = () => {
+  const num = +document.getElementById("numAnswers").value;
+  const ans = [];
+
+  for (let i = 0; i < num; i++) {
+    const val = document.getElementById("a" + i).value.trim();
+    if (!val) return alert("Toutes les réponses doivent être remplies");
     ans.push(val);
   }
-  const qVal=document.getElementById("q")?.value;
-  if(!qVal) return alert("Question vide !");
-  const correctIndex=+document.getElementById("correct")?.value;
-  const obj={q:qVal,a:ans,correct:correctIndex};
-  editIndex!==null?questions[editIndex]=obj:questions.push(obj);
-  editIndex=null;
-  document.getElementById("q").value="";
-  for(let i=0;i<6;i++) if(document.getElementById("a"+i)) document.getElementById("a"+i).value="";
-  renderList();
-}
 
-window.editQ=(i)=>{
-  const qu=questions[i];
-  if(!qu) return;
-  document.getElementById("q").value=qu.q;
-  document.getElementById("numAnswers").value=qu.a.length;
+  const qVal = document.getElementById("q").value.trim();
+  if (!qVal) return alert("Question vide !");
+
+  // Récupérer toutes les bonnes réponses cochées
+  const checked = [...document.querySelectorAll("#correctContainer input:checked")]
+    .map(cb => +cb.value);
+
+  if (checked.length === 0) return alert("Choisissez au moins une bonne réponse");
+
+  const obj = { q: qVal, a: ans, correct: checked };
+
+  if (editIndex !== null) {
+    questions[editIndex] = obj;
+  } else {
+    questions.push(obj);
+  }
+
+  editIndex = null;
+  document.getElementById("q").value = "";
+  for (let i = 0; i < 6; i++) {
+    if (document.getElementById("a" + i))
+      document.getElementById("a" + i).value = "";
+  }
+
+  renderList();
+};
+
+window.editQ = (i) => {
+  const qu = questions[i];
+  if (!qu) return;
+
+  document.getElementById("q").value = qu.q;
+  document.getElementById("numAnswers").value = qu.a.length;
+
   updateAnswerFields();
-  for(let j=0;j<qu.a.length;j++) document.getElementById("a"+j).value=qu.a[j];
-  document.getElementById("correct").value=qu.correct;
-  editIndex=i;
-}
+
+  for (let j = 0; j < qu.a.length; j++) {
+    document.getElementById("a" + j).value = qu.a[j];
+  }
+
+  // Recocher les bonnes réponses
+  const checkboxes = document.querySelectorAll("#correctContainer input");
+  checkboxes.forEach(cb => {
+    cb.checked = qu.correct.includes(+cb.value);
+  });
+
+  editIndex = i;
+};
 
 window.delQ=(i)=>{
   if(confirm("Supprimer ?")){questions.splice(i,1);renderList();}
@@ -502,28 +545,35 @@ function load(){
   scoreEl.textContent="Score : "+score;
 }
 
-window.answer=(i)=>{
-  const q=questions[index];
-  const btns=document.querySelectorAll(".quiz-btn");
-  btns.forEach(btn=>btn.disabled=true);
-  btns[q.correct].classList.add("correct");
-  if(i===q.correct){
+window.answer = (i) => {
+  const q = questions[index];
+  const btns = document.querySelectorAll(".quiz-btn");
+  btns.forEach(btn => btn.disabled = true);
+
+  const correctAnswers = q.correct;
+
+  correctAnswers.forEach(c => {
+    btns[c].classList.add("correct");
+  });
+
+  if (correctAnswers.includes(i)) {
     score++;
     ding();
-    feedback.textContent="✅ JUSTE";
-    feedback.className="feedback ok";
-  } else{
+    feedback.textContent = "✅ JUSTE";
+    feedback.className = "feedback ok";
+  } else {
     dong();
-    feedback.textContent="❌ FAUX";
-    feedback.className="feedback no";
+    feedback.textContent = "❌ FAUX";
+    feedback.className = "feedback no";
     btns[i].classList.add("wrong");
   }
-  setTimeout(()=>{
+
+  setTimeout(() => {
     index++;
-    if(index<questions.length) load();
+    if (index < questions.length) load();
     else end();
-  },1200);
-}
+  }, 1200);
+};
 
 function end(){
   quiz.classList.add("hidden");
