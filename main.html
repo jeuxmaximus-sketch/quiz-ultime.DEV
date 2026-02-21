@@ -352,36 +352,39 @@ button:hover{opacity:.9}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-   function updateAnswerFields() {
-  const num = parseInt(document.getElementById("numAnswers").value);
+  window.updateAnswerFields = () => {
+  const num = +document.getElementById("numAnswers").value;
+  const answersContainer = document.getElementById("answersContainer");
   const correctContainer = document.getElementById("correctContainer");
+
   correctContainer.innerHTML = "";
 
   for (let i = 0; i < 6; i++) {
-    const answerInput = document.getElementById("a" + i);
+    const input = document.getElementById("a" + i);
 
     if (i < num) {
-      answerInput.classList.remove("hidden");
+      input.classList.remove("hidden");
 
-      // création case à cocher
-      const label = document.createElement("label");
-      label.style.display = "block";
+      // On met la case à côté du champ
+      const wrapper = document.createElement("div");
+      wrapper.style.display = "flex";
+      wrapper.style.alignItems = "center";
+      wrapper.style.gap = "8px";
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.value = i;
 
-      label.appendChild(checkbox);
-      label.appendChild(document.createTextNode(" Réponse " + (i + 1)));
+      wrapper.appendChild(checkbox);
+      wrapper.appendChild(input);
 
-      correctContainer.appendChild(label);
+      answersContainer.appendChild(wrapper);
 
     } else {
-      answerInput.classList.add("hidden");
+      input.classList.add("hidden");
     }
   }
-}
-
+};
 // === VARIABLES & DOM ===
 const home=document.getElementById("home");
 const creator=document.getElementById("creator");
@@ -413,8 +416,12 @@ window.backHome=()=>{creator.classList.add("hidden");home.classList.remove("hidd
 // === GESTION RÉPONSES ===
 window.updateAnswerFields = () => {
   const num = +document.getElementById("numAnswers").value;
-  const container = document.getElementById("correctContainer");
-  container.innerHTML = "";
+  const answersContainer = document.getElementById("answersContainer");
+  const correctContainer = document.getElementById("correctContainer");
+
+  // ← AJOUTE CETTE LIGNE
+  answersContainer.innerHTML = "";
+  correctContainer.innerHTML = "";
 
   for (let i = 0; i < 6; i++) {
     const input = document.getElementById("a" + i);
@@ -422,25 +429,24 @@ window.updateAnswerFields = () => {
     if (i < num) {
       input.classList.remove("hidden");
 
-      // Création case à cocher
-      const label = document.createElement("label");
-      label.style.display = "block";
+      const wrapper = document.createElement("div");
+      wrapper.style.display = "flex";
+      wrapper.style.alignItems = "center";
+      wrapper.style.gap = "8px";
 
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
       checkbox.value = i;
 
-      label.appendChild(checkbox);
-      label.append(" Réponse " + (i + 1));
+      wrapper.appendChild(checkbox);
+      wrapper.appendChild(input);
 
-      container.appendChild(label);
-
+      answersContainer.appendChild(wrapper);
     } else {
       input.classList.add("hidden");
     }
   }
 };
-
 updateAnswerFields();
 // === QUESTIONS ===
 function renderList(){
